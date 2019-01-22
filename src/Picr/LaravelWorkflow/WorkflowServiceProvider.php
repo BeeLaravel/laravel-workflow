@@ -1,5 +1,4 @@
 <?php
-
 namespace Picr\LaravelWorkflow;
 
 use Exception;
@@ -12,39 +11,23 @@ use Symfony\Component\Workflow\Registry;
 use Symfony\Component\Workflow\Transition;
 use Symfony\Component\Workflow\Workflow;
 
-class WorkflowServiceProvider extends ServiceProvider
-{
+class WorkflowServiceProvider extends ServiceProvider {
     protected $commands = [
         'Picr\LaravelWorkflow\Commands\WorkflowGraphvizDumpCommand',
     ];
 
-    /**
-     * Bootstrap the application services...
-     *
-     * @return void
-     */
-    public function boot()
-    {
+    public function boot() {
         $configPath = __DIR__ . '/../../config/config.php';
         $this->publishes([$configPath => config_path('laravel-workflow.php')], 'config');
     }
 
-    /**
-     * Register the application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
+    public function register() {
         $this->commands($this->commands);
+
         $this->registerWorkflow();
     }
 
-    /**
-     * Register the Workflow
-     */
-    public function registerWorkflow()
-    {
+    public function registerWorkflow() {
         $this->app->singleton('workflow', function ($app) {
             $registry = new Registry();
             foreach ($app['config']['workflow'] as $name => $workflowData) {
@@ -75,14 +58,7 @@ class WorkflowServiceProvider extends ServiceProvider
             return $registry;
         });
     }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
+    public function provides() {
         return ['workflow'];
     }
 }

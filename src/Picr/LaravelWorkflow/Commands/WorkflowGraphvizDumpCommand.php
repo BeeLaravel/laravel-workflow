@@ -1,47 +1,28 @@
 <?php
-
 namespace Picr\LaravelWorkflow\Commands;
 
+use Illuminate\Console\Command;
 use Config;
 use Exception;
-use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Workflow\Dumper\GraphvizDumper;
 use ReflectionProperty;
 use Workflow;
 
-class WorkflowGraphvizDumpCommand extends Command
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+class WorkflowGraphvizDumpCommand extends Command {
     protected $signature = 'workflow:graphviz-dump
         {workflow : name of workflow from configuration}
         {--format= : graphics format output}';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'GraphvizDumper dumps a workflow as a graphviz file.
         You can convert the generated dot file with the dot utility (http://www.graphviz.org/):';
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
-    {
+    public function handle() {
         $workflowName = $this->argument('workflow');
         $config = Config::get('workflow');
-        if (!isset($config[$workflowName])) {
-            throw new Exception("There is not a workflow called $workflowName configured.");
-        }
-        $className = $config[$workflowName]['supports'][0]; // todo: add option to select single class?
+
+        if ( !isset($config[$workflowName]) ) throw new Exception("There is not a workflow called $workflowName configured.");
+
+        $className = $config[$workflowName]['supports'][0];
 
         $workflow = Workflow::get(new $className, $workflowName);
 
@@ -51,7 +32,7 @@ class WorkflowGraphvizDumpCommand extends Command
 
         $dumper = new GraphvizDumper();
 
-        if (! $outputType = $this->option('format')) {
+        if ( ! $outputType = $this->option('format') ) {
             $this->output->writeln($dumper->dump($definition));
 
             return;
@@ -62,6 +43,5 @@ class WorkflowGraphvizDumpCommand extends Command
         $process->mustRun();
         $output = $process->getOutput();
         file_put_contents($workflowName . '.' . $outputType, $output);
-
     }
 }
